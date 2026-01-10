@@ -264,15 +264,7 @@
         "named": true
       },
       {
-        "type": "do_label_statement",
-        "named": true
-      },
-      {
         "type": "do_loop",
-        "named": true
-      },
-      {
-        "type": "end_do_label_statement",
         "named": true
       },
       {
@@ -2209,25 +2201,6 @@
     }
   },
   {
-    "type": "do_label_statement",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "loop_control_expression",
-          "named": true
-        },
-        {
-          "type": "statement_label_reference",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "do_loop",
     "named": true,
     "fields": {},
@@ -2245,6 +2218,10 @@
         },
         {
           "type": "do_statement",
+          "named": true
+        },
+        {
+          "type": "end_do_label_loop_statement",
           "named": true
         },
         {
@@ -2285,7 +2262,18 @@
   {
     "type": "do_statement",
     "named": true,
-    "fields": {},
+    "fields": {
+      "do_label": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "do_label",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": false,
       "required": false,
@@ -2539,18 +2527,23 @@
     }
   },
   {
-    "type": "end_do_label_statement",
+    "type": "end_do_label_loop_statement",
     "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "statement_label",
-          "named": true
-        }
-      ]
+    "fields": {
+      "do_label": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "do_label_continue",
+            "named": true
+          },
+          {
+            "type": "do_label_virtual",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -7411,6 +7404,18 @@
   {
     "type": "do",
     "named": false
+  },
+  {
+    "type": "do_label",
+    "named": true
+  },
+  {
+    "type": "do_label_continue",
+    "named": true
+  },
+  {
+    "type": "do_label_virtual",
+    "named": true
   },
   {
     "type": "double",

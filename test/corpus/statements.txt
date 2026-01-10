@@ -896,6 +896,15 @@ program test
   do 10 i = 1, 10
     bar(i) = i
 10 end do
+
+  do 100 i = 1,10
+    do 100 j = 1,10
+      do 200 k = 1,10
+        do 200 l = 1,10
+          do 200 m = 1,10
+          A(i,j) = A(i,j) + B(k,l,m)
+200 Continue
+100 End Do
 end program test
 
 --------------------------------------------------------------------------------
@@ -904,43 +913,111 @@ end program test
   (program
     (program_statement
       (name))
-    (do_label_statement
-      (statement_label_reference)
-      (loop_control_expression
-        (identifier)
-        (number_literal)
-        (number_literal)))
-    (do_label_statement
-      (statement_label_reference)
-      (loop_control_expression
-        (identifier)
-        (number_literal)
-        (number_literal)))
-    (assignment_statement
-      (call_expression
-        (identifier)
-        (argument_list
+    (do_loop
+      (do_statement
+        (do_label)
+        (loop_control_expression
           (identifier)
-          (identifier)))
-      (math_expression
-        (identifier)
-        (identifier)))
-    (statement_label)
-    (keyword_statement)
-    (do_label_statement
-      (statement_label_reference)
-      (loop_control_expression
-        (identifier)
-        (number_literal)
-        (number_literal)))
-    (assignment_statement
-      (call_expression
-        (identifier)
-        (argument_list
-          (identifier)))
-      (identifier))
-    (end_do_label_statement
-      (statement_label))
+          (number_literal)
+          (number_literal)))
+      (do_loop
+        (do_statement
+          (do_label)
+          (loop_control_expression
+            (identifier)
+            (number_literal)
+            (number_literal)))
+        (assignment_statement
+          (call_expression
+            (identifier)
+            (argument_list
+              (identifier)
+              (identifier)))
+          (math_expression
+            (identifier)
+            (identifier)))
+        (end_do_label_loop_statement
+          (do_label_virtual)))
+      (end_do_label_loop_statement
+        (do_label_continue)))
+    (do_loop
+      (do_statement
+        (do_label)
+        (loop_control_expression
+          (identifier)
+          (number_literal)
+          (number_literal)))
+      (assignment_statement
+        (call_expression
+          (identifier)
+          (argument_list
+            (identifier)))
+        (identifier))
+      (end_do_label_loop_statement
+        (do_label_continue)))
+    (do_loop
+      (do_statement
+        (do_label)
+        (loop_control_expression
+          (identifier)
+          (number_literal)
+          (number_literal)))
+      (do_loop
+        (do_statement
+          (do_label)
+          (loop_control_expression
+            (identifier)
+            (number_literal)
+            (number_literal)))
+        (do_loop
+          (do_statement
+            (do_label)
+            (loop_control_expression
+              (identifier)
+              (number_literal)
+              (number_literal)))
+          (do_loop
+            (do_statement
+              (do_label)
+              (loop_control_expression
+                (identifier)
+                (number_literal)
+                (number_literal)))
+            (do_loop
+              (do_statement
+                (do_label)
+                (loop_control_expression
+                  (identifier)
+                  (number_literal)
+                  (number_literal)))
+              (assignment_statement
+                (call_expression
+                  (identifier)
+                  (argument_list
+                    (identifier)
+                    (identifier)))
+                (math_expression
+                  (call_expression
+                    (identifier)
+                    (argument_list
+                      (identifier)
+                      (identifier)))
+                  (call_expression
+                    (identifier)
+                    (argument_list
+                      (identifier)
+                      (identifier)
+                      (identifier)))))
+              (end_do_label_loop_statement
+                (do_label_virtual)))
+            (end_do_label_loop_statement
+              (do_label_virtual)))
+          (end_do_label_loop_statement
+            (do_label_continue)))
+        (end_do_label_loop_statement
+          (do_label_virtual)))
+      (end_do_label_loop_statement
+        (do_label_continue)))
     (end_program_statement
       (name))))
 
