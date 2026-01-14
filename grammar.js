@@ -304,7 +304,7 @@ module.exports = grammar({
     ),
 
     program_statement: $ => seq(caseInsensitive('program'), $._name, $._end_of_statement),
-    end_program_statement: $ => blockStructureEnding($, 'program'),
+    end_program_statement: $ => blockStructureEnding1($, 'program', {labelRule: $._name, eos: true}),
 
     module: $ => seq(
       $.module_statement,
@@ -320,7 +320,7 @@ module.exports = grammar({
     ),
 
     module_statement: $ => seq(caseInsensitive('module'), $._name, $._end_of_statement),
-    end_module_statement: $ => blockStructureEnding($, 'module'),
+    end_module_statement: $ => blockStructureEnding1($, 'module', {labelRule: $._name, eos: true}),
 
     submodule: $ => seq(
       $.submodule_statement,
@@ -346,7 +346,7 @@ module.exports = grammar({
       $._name,
       $._end_of_statement,
     ),
-    end_submodule_statement: $ => blockStructureEnding($, 'submodule'),
+    end_submodule_statement: $ => blockStructureEnding1($, 'submodule', {labelRule: $._name, eos: true}),
     module_name: $ => $._name,
 
     interface: $ => seq(
@@ -432,7 +432,7 @@ module.exports = grammar({
       $._end_of_statement,
     ),
 
-    end_subroutine_statement: $ => blockStructureEnding($, 'subroutine'),
+    end_subroutine_statement: $ => blockStructureEnding1($, 'subroutine', {labelRule: $._name, eos: true}),
 
     module_procedure: $ => procedure($, $.module_procedure_statement, $.end_module_procedure_statement),
 
@@ -443,7 +443,7 @@ module.exports = grammar({
       $._end_of_statement,
     ),
 
-    end_module_procedure_statement: $ => blockStructureEnding($, 'procedure'),
+    end_module_procedure_statement: $ => blockStructureEnding1($, 'procedure', {labelRule: $._name, eos: true}),
 
     function: $ => procedure($, $.function_statement, $.end_function_statement),
 
@@ -486,7 +486,7 @@ module.exports = grammar({
       ')'
     )),
 
-    end_function_statement: $ => blockStructureEnding($, 'function'),
+    end_function_statement: $ => blockStructureEnding1($, 'function', {labelRule: $._name, eos: true}),
 
     function_result: $ => seq(
       caseInsensitive('result'),
@@ -766,7 +766,7 @@ module.exports = grammar({
       $._end_of_statement,
     ),
 
-    end_type_statement: $ => blockStructureEnding($, 'type'),
+    end_type_statement: $ => blockStructureEnding1($, 'type', {labelRule: $._name, eos: true}),
 
     _type_name: $ => alias($.identifier, $.type_name),
 
@@ -2439,20 +2439,6 @@ function commaSep1 (rule) {
 
 function sep1 (rule, separator) {
   return seq(rule, repeat(seq(separator, rule)))
-}
-
-// This can be merged with whiteSpacedKeyword, keeping for now.
-function blockStructureEnding ($, structType) {
-  const obj = prec.right(seq(
-    choice(
-      seq(
-        alias(caseInsensitive('end', false), 'end'),
-        optional(alias(caseInsensitive(structType, false), structType))),
-      alias(caseInsensitive('end' + structType, false), 'end' + structType)),
-    optional($._name),
-    $._end_of_statement
-  ))
-  return obj
 }
 
 // one structType keyword
