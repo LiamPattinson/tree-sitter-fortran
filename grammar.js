@@ -300,11 +300,12 @@ module.exports = grammar({
       ),
       repeat($._statement),
       optional($.internal_procedures),
-      $.end_program_statement
+      $.end_program_statement,
+      $._end_of_statement
     ),
 
     program_statement: $ => seq(caseInsensitive('program'), $._name, $._end_of_statement),
-    end_program_statement: $ => blockStructureEnding1($, 'program', {labelRule: $._name, eos: true}),
+    end_program_statement: $ => blockStructureEnding1($, 'program', {labelRule: $._name, eos: false}),
 
     module: $ => seq(
       $.module_statement,
@@ -316,11 +317,12 @@ module.exports = grammar({
         ),
       ),
       optional($.internal_procedures),
-      $.end_module_statement
+      $.end_module_statement,
+      $._end_of_statement
     ),
 
     module_statement: $ => seq(caseInsensitive('module'), $._name, $._end_of_statement),
-    end_module_statement: $ => blockStructureEnding1($, 'module', {labelRule: $._name, eos: true}),
+    end_module_statement: $ => blockStructureEnding1($, 'module', {labelRule: $._name, eos: false}),
 
     submodule: $ => seq(
       $.submodule_statement,
@@ -332,7 +334,8 @@ module.exports = grammar({
         ),
       ),
       optional($.internal_procedures),
-      $.end_submodule_statement
+      $.end_submodule_statement,
+      $._end_of_statement
     ),
 
     submodule_statement: $ => seq(
@@ -346,7 +349,7 @@ module.exports = grammar({
       $._name,
       $._end_of_statement,
     ),
-    end_submodule_statement: $ => blockStructureEnding1($, 'submodule', {labelRule: $._name, eos: true}),
+    end_submodule_statement: $ => blockStructureEnding1($, 'submodule', {labelRule: $._name, eos: false}),
     module_name: $ => $._name,
 
     interface: $ => seq(
@@ -361,7 +364,8 @@ module.exports = grammar({
         alias($.preproc_if_in_interface, $.preproc_if),
         alias($.preproc_ifdef_in_interface, $.preproc_ifdef),
       )),
-      $.end_interface_statement
+      $.end_interface_statement,
+      $._end_of_statement
     ),
 
     _interface_items: $ => choice(
@@ -379,7 +383,7 @@ module.exports = grammar({
       $._end_of_statement,
     ),
 
-    end_interface_statement: $ => blockStructureEnding1($, 'interface', {labelRule: $._end_interface_spec, eos: true}),
+    end_interface_statement: $ => blockStructureEnding1($, 'interface', {labelRule: $._end_interface_spec, eos: false}),
 
     _end_interface_spec: $ => choice(
       $._name,
@@ -396,7 +400,8 @@ module.exports = grammar({
           alias($.preproc_ifdef_in_module, $.preproc_ifdef)
         ),
       ),
-      $.end_block_data_statement
+      $.end_block_data_statement,
+      $._end_of_statement
     ),
 
     block_data_statement: $ => seq(
@@ -405,7 +410,7 @@ module.exports = grammar({
       $._end_of_statement
     ),
 
-    end_block_data_statement: $ => blockStructureEnding2($, 'block', 'data', {labelRule: $._name, eos: true}),
+    end_block_data_statement: $ => blockStructureEnding2($, 'block', 'data', {labelRule: $._name, eos: false}),
 
     assignment: $ => seq(caseInsensitive('assignment'), '(', '=', ')'),
     operator: $ => seq(caseInsensitive('operator'), '(', alias(/[^()]+/, $.operator_name), ')'),
@@ -432,7 +437,7 @@ module.exports = grammar({
       $._end_of_statement,
     ),
 
-    end_subroutine_statement: $ => blockStructureEnding1($, 'subroutine', {labelRule: $._name, eos: true}),
+    end_subroutine_statement: $ => blockStructureEnding1($, 'subroutine', {labelRule: $._name, eos: false}),
 
     module_procedure: $ => procedure($, $.module_procedure_statement, $.end_module_procedure_statement),
 
@@ -443,7 +448,7 @@ module.exports = grammar({
       $._end_of_statement,
     ),
 
-    end_module_procedure_statement: $ => blockStructureEnding1($, 'procedure', {labelRule: $._name, eos: true}),
+    end_module_procedure_statement: $ => blockStructureEnding1($, 'procedure', {labelRule: $._name, eos: false}),
 
     function: $ => procedure($, $.function_statement, $.end_function_statement),
 
@@ -486,7 +491,7 @@ module.exports = grammar({
       ')'
     )),
 
-    end_function_statement: $ => blockStructureEnding1($, 'function', {labelRule: $._name, eos: true}),
+    end_function_statement: $ => blockStructureEnding1($, 'function', {labelRule: $._name, eos: false}),
 
     function_result: $ => seq(
       caseInsensitive('result'),
@@ -731,7 +736,8 @@ module.exports = grammar({
         alias($.preproc_ifdef_in_derived_type, $.preproc_ifdef),
       )),
       optional($.derived_type_procedures),
-      $.end_type_statement
+      $.end_type_statement,
+      $._end_of_statement
     ),
 
     abstract_specifier: $ => caseInsensitive('abstract'),
@@ -766,7 +772,7 @@ module.exports = grammar({
       $._end_of_statement,
     ),
 
-    end_type_statement: $ => blockStructureEnding1($, 'type', {labelRule: $._name, eos: true}),
+    end_type_statement: $ => blockStructureEnding1($, 'type', {labelRule: $._name, eos: false}),
 
     _type_name: $ => alias($.identifier, $.type_name),
 
@@ -2620,6 +2626,7 @@ function procedure($, start_statement, end_statement) {
       ),
     ),
     optional($.internal_procedures),
-    end_statement
+    end_statement,
+    $._end_of_statement
   );
 }
