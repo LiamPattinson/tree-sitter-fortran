@@ -15041,20 +15041,45 @@
       "type": "CHOICE",
       "members": [
         {
-          "type": "ALIAS",
-          "content": {
-            "type": "SYMBOL",
-            "name": "do_stmt_label"
-          },
-          "named": true,
-          "value": "do_statement"
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "block_label_start_expression"
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
+            },
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "do_stmt_label"
+              },
+              "named": true,
+              "value": "do_statement"
+            }
+          ]
         },
         {
           "type": "SEQ",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "block_label_start_expression"
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "block_label_start_expression"
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
             },
             {
               "type": "ALIAS",
@@ -15085,21 +15110,13 @@
           "type": "FIELD",
           "name": "do_label",
           "content": {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "_do_label"
-                },
-                "named": true,
-                "value": "statement_label_reference"
-              },
-              {
-                "type": "BLANK"
-              }
-            ]
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "_do_label"
+            },
+            "named": true,
+            "value": "statement_label_reference"
           }
         },
         {
@@ -15241,39 +15258,56 @@
                   "name": "_statements"
                 },
                 {
-                  "type": "CHOICE",
+                  "type": "SEQ",
                   "members": [
                     {
-                      "type": "SEQ",
+                      "type": "CHOICE",
                       "members": [
                         {
-                          "type": "ALIAS",
-                          "content": {
-                            "type": "PATTERN",
-                            "value": "[eE][nN][dD]"
-                          },
-                          "named": false,
-                          "value": "end"
+                          "type": "SEQ",
+                          "members": [
+                            {
+                              "type": "ALIAS",
+                              "content": {
+                                "type": "PATTERN",
+                                "value": "[eE][nN][dD]"
+                              },
+                              "named": false,
+                              "value": "end"
+                            },
+                            {
+                              "type": "ALIAS",
+                              "content": {
+                                "type": "PATTERN",
+                                "value": "[dD][oO]"
+                              },
+                              "named": false,
+                              "value": "do"
+                            }
+                          ]
                         },
                         {
                           "type": "ALIAS",
                           "content": {
                             "type": "PATTERN",
-                            "value": "[dD][oO]"
+                            "value": "[eE][nN][dD][dD][oO]"
                           },
                           "named": false,
-                          "value": "do"
+                          "value": "enddo"
                         }
                       ]
                     },
                     {
-                      "type": "ALIAS",
-                      "content": {
-                        "type": "PATTERN",
-                        "value": "[eE][nN][dD][dD][oO]"
-                      },
-                      "named": false,
-                      "value": "enddo"
+                      "type": "CHOICE",
+                      "members": [
+                        {
+                          "type": "SYMBOL",
+                          "name": "_block_label"
+                        },
+                        {
+                          "type": "BLANK"
+                        }
+                      ]
                     }
                   ]
                 }

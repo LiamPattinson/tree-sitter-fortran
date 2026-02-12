@@ -1293,9 +1293,9 @@ module.exports = grammar({
     ),
     _signed_literal: $ => prec.right(PREC.UNARY, seq(choice('-', '+'), $.number_literal)),
 
-    // old-style labeled do loop does not allow a block label, however, the rule
-    // accepts a labeled do with an additional block label,
-    // hence three structures to match:
+    // old-style labeled do loop does allow a block label (do-construct-name),
+    // but it seems a bit wild and may never have been used in practice
+    // * block_label: do-label     (double-labeled loop, old style)
     // *              do label     (labeled loop, old style)
     // * block_label: do           (nonlabeled loop)
     // *              do           (nonlabeled loop)
@@ -1309,9 +1309,15 @@ module.exports = grammar({
 
     // choice between labeled and nonlabeled do
     _do_stmt: $ => choice(
-      alias($.do_stmt_label, $.do_statement),
       seq(
-        $.block_label_start_expression,
+        // theoretically permitted, but useful to include?
+        optional($.block_label_start_expression),
+        alias($.do_stmt_label, $.do_statement)
+      ),
+      // or without block_label
+      // alias($.do_stmt_label, $.do_statement),
+      seq(
+        optional($.block_label_start_expression),
         alias($.do_stmt_nonlabel, $.do_statement)
       )
     ),
@@ -1319,7 +1325,7 @@ module.exports = grammar({
     // old style labeled loop
     do_stmt_label: $ => seq(
       caseInsensitive('do'),
-      field('do_label', optional(alias($._do_label, $.statement_label_reference))),
+      field('do_label', alias($._do_label, $.statement_label_reference)),
       optional($._do_stmt_control)
     ),
 
@@ -1341,6 +1347,9 @@ module.exports = grammar({
       ),
     ),
 
+    // choice between old-style and new-style end do,
+    // the external scanner tokens for old-style loops
+    // ensure that only the matching end_do rule is accepted
     _end_do_loop: $ => choice(
       $.end_do_label_loop_statement,
       seq(
@@ -1359,8 +1368,13 @@ module.exports = grammar({
       seq(
         field('do_label', alias($._do_label_continue, $.statement_label)),
         choice(
-            $._statements,
-            whiteSpacedKeyword('end', 'do')
+          $._statements,
+          seq(
+            whiteSpacedKeyword('end', 'do'),
+            optional($._block_label)
+          )
+          // or without block_label
+          //whiteSpacedKeyword('end', 'do'),
         )
       )
     ),

@@ -908,6 +908,12 @@ program test
 
     do 300 i = 1,10
 300 A(i) = i
+
+    double_loop: do 400, i=1,10
+      inner: do 500, j=1,10
+500   enddo inner
+400 enddo double_loop
+
 end program test
 
 --------------------------------------------------------------------------------
@@ -1038,6 +1044,28 @@ end program test
             (argument_list
               (identifier)))
           (identifier))))
+    (do_loop
+      (block_label_start_expression)
+      (do_statement
+        (statement_label_reference)
+        (loop_control_expression
+          (identifier)
+          (number_literal)
+          (number_literal)))
+      (do_loop
+        (block_label_start_expression)
+        (do_statement
+          (statement_label_reference)
+          (loop_control_expression
+            (identifier)
+            (number_literal)
+            (number_literal)))
+        (end_do_label_loop_statement
+          (statement_label)
+          (block_label)))
+      (end_do_label_loop_statement
+        (statement_label)
+        (block_label)))
     (end_program_statement
       (name))))
 

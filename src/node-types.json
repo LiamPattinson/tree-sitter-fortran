@@ -2552,6 +2552,10 @@
         {
           "type": "_statements",
           "named": true
+        },
+        {
+          "type": "block_label",
+          "named": true
         }
       ]
     }
