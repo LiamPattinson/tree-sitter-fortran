@@ -300,11 +300,13 @@ module.exports = grammar({
       ),
       repeat($._statement),
       optional($.internal_procedures),
-      $.end_program_statement
+      optional($.statement_label),
+      $.end_program_statement,
+      $._end_of_statement
     ),
 
     program_statement: $ => seq(caseInsensitive('program'), $._name, $._end_of_statement),
-    end_program_statement: $ => blockStructureEnding($, 'program'),
+    end_program_statement: $ => blockStructureEnding1($, 'program', $._name),
 
     module: $ => seq(
       $.module_statement,
@@ -316,11 +318,12 @@ module.exports = grammar({
         ),
       ),
       optional($.internal_procedures),
-      $.end_module_statement
+      $.end_module_statement,
+      $._end_of_statement
     ),
 
     module_statement: $ => seq(caseInsensitive('module'), $._name, $._end_of_statement),
-    end_module_statement: $ => blockStructureEnding($, 'module'),
+    end_module_statement: $ => blockStructureEnding1($, 'module', $._name),
 
     submodule: $ => seq(
       $.submodule_statement,
@@ -332,7 +335,8 @@ module.exports = grammar({
         ),
       ),
       optional($.internal_procedures),
-      $.end_submodule_statement
+      $.end_submodule_statement,
+      $._end_of_statement
     ),
 
     submodule_statement: $ => seq(
@@ -346,7 +350,7 @@ module.exports = grammar({
       $._name,
       $._end_of_statement,
     ),
-    end_submodule_statement: $ => blockStructureEnding($, 'submodule'),
+    end_submodule_statement: $ => blockStructureEnding1($, 'submodule', $._name),
     module_name: $ => $._name,
 
     interface: $ => seq(
@@ -361,7 +365,8 @@ module.exports = grammar({
         alias($.preproc_if_in_interface, $.preproc_if),
         alias($.preproc_ifdef_in_interface, $.preproc_ifdef),
       )),
-      $.end_interface_statement
+      $.end_interface_statement,
+      $._end_of_statement
     ),
 
     _interface_items: $ => choice(
@@ -379,11 +384,12 @@ module.exports = grammar({
       $._end_of_statement,
     ),
 
-    end_interface_statement: $ => prec.right(seq(
-      whiteSpacedKeyword('end', 'interface'),
-      optional(choice($._name, $._generic_procedure)),
-      $._end_of_statement
-    )),
+    end_interface_statement: $ => blockStructureEnding1($, 'interface', $._end_interface_spec),
+
+    _end_interface_spec: $ => choice(
+      $._name,
+      $._generic_procedure
+    ),
 
     // Obsolescent feature
     block_data: $ => seq(
@@ -395,7 +401,8 @@ module.exports = grammar({
           alias($.preproc_ifdef_in_module, $.preproc_ifdef)
         ),
       ),
-      $.end_block_data_statement
+      $.end_block_data_statement,
+      $._end_of_statement
     ),
 
     block_data_statement: $ => seq(
@@ -404,18 +411,7 @@ module.exports = grammar({
       $._end_of_statement
     ),
 
-    // Can't use `blockStructureEnding` because it's two keywords
-    end_block_data_statement: $ => {
-      const structType = whiteSpacedKeyword('block', 'data', false)
-      return prec.right(seq(
-        choice(
-          seq(
-            alias(caseInsensitive('end', false), 'end'),
-            optional(alias(structType, 'blockdata'))),
-          alias(caseInsensitive('end' + structType, false), 'endblockdata')),
-        optional($._name),
-        $._end_of_statement))
-    },
+    end_block_data_statement: $ => blockStructureEnding2($, 'block', 'data', $._name, false),
 
     assignment: $ => seq(caseInsensitive('assignment'), '(', '=', ')'),
     operator: $ => seq(caseInsensitive('operator'), '(', alias(/[^()]+/, $.operator_name), ')'),
@@ -442,7 +438,7 @@ module.exports = grammar({
       $._end_of_statement,
     ),
 
-    end_subroutine_statement: $ => blockStructureEnding($, 'subroutine'),
+    end_subroutine_statement: $ => blockStructureEnding1($, 'subroutine', $._name),
 
     module_procedure: $ => procedure($, $.module_procedure_statement, $.end_module_procedure_statement),
 
@@ -453,7 +449,7 @@ module.exports = grammar({
       $._end_of_statement,
     ),
 
-    end_module_procedure_statement: $ => blockStructureEnding($, 'procedure'),
+    end_module_procedure_statement: $ => blockStructureEnding1($, 'procedure', $._name),
 
     function: $ => procedure($, $.function_statement, $.end_function_statement),
 
@@ -496,7 +492,7 @@ module.exports = grammar({
       ')'
     )),
 
-    end_function_statement: $ => blockStructureEnding($, 'function'),
+    end_function_statement: $ => blockStructureEnding1($, 'function', $._name),
 
     function_result: $ => seq(
       caseInsensitive('result'),
@@ -741,7 +737,8 @@ module.exports = grammar({
         alias($.preproc_ifdef_in_derived_type, $.preproc_ifdef),
       )),
       optional($.derived_type_procedures),
-      $.end_type_statement
+      $.end_type_statement,
+      $._end_of_statement
     ),
 
     abstract_specifier: $ => caseInsensitive('abstract'),
@@ -776,7 +773,7 @@ module.exports = grammar({
       $._end_of_statement,
     ),
 
-    end_type_statement: $ => blockStructureEnding($, 'type'),
+    end_type_statement: $ => blockStructureEnding1($, 'type', $._name),
 
     _type_name: $ => alias($.identifier, $.type_name),
 
@@ -1314,8 +1311,6 @@ module.exports = grammar({
         optional($.block_label_start_expression),
         alias($.do_stmt_label, $.do_statement)
       ),
-      // or without block_label
-      // alias($.do_stmt_label, $.do_statement),
       seq(
         optional($.block_label_start_expression),
         alias($.do_stmt_nonlabel, $.do_statement)
@@ -1369,21 +1364,13 @@ module.exports = grammar({
         field('do_label', alias($._do_label_continue, $.statement_label)),
         choice(
           $._statements,
-          seq(
-            whiteSpacedKeyword('end', 'do'),
-            optional($._block_label)
-          )
-          // or without block_label
-          //whiteSpacedKeyword('end', 'do'),
+          blockStructureEnding1($, 'do', $._block_label)
         )
       )
     ),
 
     // new style do loop, allows statement label as well as block label
-    end_do_loop_statement: $ => seq(
-      whiteSpacedKeyword('end', 'do'),
-      optional($._block_label)
-    ),
+    end_do_loop_statement: $ => blockStructureEnding1($, 'do', $._block_label),
 
     while_statement: $ => seq(caseInsensitive('while'),
       $.parenthesized_expression),
@@ -1473,10 +1460,7 @@ module.exports = grammar({
       $.end_if_statement
     ),
 
-    end_if_statement: $ => seq(
-      whiteSpacedKeyword('end', 'if'),
-      optional($._block_label)
-    ),
+    end_if_statement: $ => blockStructureEnding1($, 'if', $._block_label),
 
     elseif_clause: $ => seq(
       whiteSpacedKeyword('else', 'if'),
@@ -1515,10 +1499,7 @@ module.exports = grammar({
       $.end_where_statement
     ),
 
-    end_where_statement: $ => seq(
-      whiteSpacedKeyword('end', 'where'),
-      optional($._block_label)
-    ),
+    end_where_statement: $ => blockStructureEnding1($, 'where', $._block_label),
 
     elsewhere_clause: $ => seq(
       whiteSpacedKeyword('else', 'where'),
@@ -1567,10 +1548,7 @@ module.exports = grammar({
       $.end_forall_statement
     ),
 
-    end_forall_statement: $ => seq(
-      whiteSpacedKeyword('end', 'forall'),
-      optional($._block_label)
-    ),
+    end_forall_statement: $ => blockStructureEnding1($, 'forall', $._block_label),
 
     select_case_statement: $ => seq(
       optional($.block_label_start_expression),
@@ -1626,10 +1604,7 @@ module.exports = grammar({
       $.end_select_statement
     ),
 
-    end_select_statement: $ => seq(
-      whiteSpacedKeyword('end', 'select'),
-      optional($._block_label)
-    ),
+    end_select_statement: $ => blockStructureEnding1($, 'select', $._block_label),
 
     selector: $ => seq('(',
       choice($._expression, $.pointer_association_statement),
@@ -1692,10 +1667,7 @@ module.exports = grammar({
       $.end_block_construct_statement
     ),
 
-    end_block_construct_statement: $ => seq(
-      whiteSpacedKeyword('end', 'block'),
-      optional($._block_label)
-    ),
+    end_block_construct_statement: $ => blockStructureEnding1($, 'block', $._block_label),
 
     associate_statement: $ => seq(
       optional($.block_label_start_expression),
@@ -1718,10 +1690,7 @@ module.exports = grammar({
       field('selector', $._expression)
     ),
 
-    end_associate_statement: $ => seq(
-      whiteSpacedKeyword('end', 'associate'),
-      optional($._block_label)
-    ),
+    end_associate_statement: $ => blockStructureEnding1($, 'associate', $._block_label),
 
     format_statement: $ => prec.dynamic(PREC.CALL, seq(
       caseInsensitive('format'),
@@ -1847,13 +1816,9 @@ module.exports = grammar({
       )))
     ),
 
-    end_enum_statement: $ => whiteSpacedKeyword('end', 'enum'),
-    end_enumeration_type_statement: $ => seq(
-      caseInsensitive('end'),
-      caseInsensitive('enumeration'),
-      caseInsensitive('type'),
-      optional($._name)
-    ),
+    end_enum_statement: $ => blockStructureEnding1($, 'enum'),
+
+    end_enumeration_type_statement: $ => blockStructureEnding2($, 'enumeration', 'type', $._name, true),
 
     // precedence is used to override a conflict with the complex literal
     unit_identifier: $ => seq(
@@ -2334,11 +2299,11 @@ module.exports = grammar({
       $.end_coarray_team_statement,
     ),
 
-    end_coarray_team_statement: $ => seq(
-      whiteSpacedKeyword('end', 'team'),
+    end_coarray_team_statement: $ => prec(2, seq(
+      blockStructureEnding1($, 'team'),
       optional($.argument_list),
       optional($._block_label),
-    ),
+    )),
 
     coarray_critical_statement: $ => seq(
       optional($.block_label_start_expression),
@@ -2349,10 +2314,7 @@ module.exports = grammar({
       $.end_coarray_critical_statement,
     ),
 
-    end_coarray_critical_statement: $ => seq(
-      whiteSpacedKeyword('end', 'critical'),
-      optional($._block_label),
-    ),
+    end_coarray_critical_statement: $ => blockStructureEnding1($, 'critical', $._block_label),
 
     conditional_expression: $ => seq(
       field('condition', $._expression),
@@ -2486,18 +2448,65 @@ function sep1 (rule, separator) {
   return seq(rule, repeat(seq(separator, rule)))
 }
 
-// This can be merged with whiteSpacedKeyword, keeping for now.
-function blockStructureEnding ($, structType) {
-  const obj = prec.right(seq(
-    choice(
-      seq(
-        alias(caseInsensitive('end', false), 'end'),
-        optional(alias(caseInsensitive(structType, false), structType))),
-      alias(caseInsensitive('end' + structType, false), 'end' + structType)),
-    optional($._name),
-    $._end_of_statement
-  ))
-  return obj
+// one structType keyword
+// with optional rule for labels/names, and with optional end-of-statement
+function blockStructureEnding1 ($, structType, labelRule=null) {
+  // just listing all combinations looks easier to read
+  const end      = alias(caseInsensitive('end', false), 'end');
+  const strt     = alias(caseInsensitive(structType, false), structType);
+  const end_strt = alias(caseInsensitive('end' + structType, false), 'end' + structType);
+
+  const obj_end_stmt = choice(
+    // when structure keyword is present, allow the label
+    labelRule ? seq(end, strt, optional(labelRule)) : seq(end, strt),
+    labelRule ? seq(end_strt, optional(labelRule)) : end_strt,
+    // 'end' alone does not accept a label, as this can grab other structure keywords
+    // in incomplete statements (which happens frequently during typing)
+    end
+  );
+
+  return obj_end_stmt
+}
+
+// two structType keywords, example 'block' and 'data', accepted are
+// 'end', 'end block' and 'end block data', with or without white spaces,
+// with optional rule for labels/names, and with optional end-of-statement
+function blockStructureEnding2 ($, structType1, structType2, labelRule=null, require_blank=false) {
+  const end          = alias(caseInsensitive('end', false), 'end');
+  const strt_1       = alias(caseInsensitive(structType1, false), structType1);
+  const strt_2       = alias(caseInsensitive(structType2, false), structType2);
+  const strt_1_2     = alias(caseInsensitive(structType1 + structType2, false), structType1 + structType2);
+  const end_strt_1   = alias(caseInsensitive('end' + structType1, false), 'end' + structType1);
+  const end_strt_1_2 = alias(caseInsensitive('end' + structType1 + structType2, false), 'end' + structType1 + structType2);
+
+
+  let obj_end_stmt;
+
+  if (require_blank) {
+    // blank(s) between structure keywords are mandatory
+    obj_end_stmt = choice(
+      labelRule ? seq(end, strt_1, strt_2, optional(labelRule)) : seq(end, strt_1, strt_2),
+      seq(end, strt_1),
+      end_strt_1,
+      end
+    )
+  } else {
+    obj_end_stmt = choice(
+      // when both structure keywords are present, allow the label
+      labelRule ? seq(end, strt_1, strt_2, optional(labelRule)) : seq(end, strt_1, strt_2),
+      labelRule ? seq(end_strt_1, strt_2,  optional(labelRule)) : seq(end_strt_1, strt_2),
+      labelRule ? seq(end, strt_1_2,       optional(labelRule)) : seq(end, strt_1_2),
+      labelRule ? seq(end_strt_1_2,        optional(labelRule)) : seq(end_strt_1_2),
+      // 'end' alone or with just one keyword does not accept a label,
+      // as this can grab other structure keywords in incomplete statements
+      // (which happens frequently during typing)
+      seq(end, strt_1),
+      end_strt_1,
+      end
+    );
+  }
+
+  return obj_end_stmt
 }
 
 /**
@@ -2625,6 +2634,8 @@ function procedure($, start_statement, end_statement) {
       ),
     ),
     optional($.internal_procedures),
-    end_statement
+    optional($.statement_label),
+    end_statement,
+    $._end_of_statement
   );
 }

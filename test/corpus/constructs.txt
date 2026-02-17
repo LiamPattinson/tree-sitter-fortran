@@ -1385,6 +1385,10 @@ module enumeration_mod
     enumerator :: v_one, v_two, v_three
     enumerator v_four
   end enumeration type v_value
+
+  ENUMERATION TYPE :: editor
+    ENUMERATOR :: emacs, vim, ed
+  END ENUMERATION TYPE
 end module enumeration_mod
 
 --------------------------------------------------------------------------------
@@ -1405,6 +1409,14 @@ end module enumeration_mod
         (identifier))
       (end_enumeration_type_statement
         (name)))
+    (enumeration_type
+      (enumeration_type_statement
+        (type_name))
+      (enumerator_statement
+        (identifier)
+        (identifier)
+        (identifier))
+      (end_enumeration_type_statement))
     (end_module_statement
       (name))))
 
@@ -1416,6 +1428,12 @@ Block Data (Obsolescent)
       COMMON /COMBLA/ ICASE, N, INCX
       DATA ICASE /4/
       END
+
+      block data name2
+      end block data
+
+      Block Data name3
+      End Block Data name3
 
 --------------------------------------------------------------------------------
 
@@ -1434,4 +1452,56 @@ Block Data (Obsolescent)
         (identifier)
         (data_value
           (number_literal))))
-    (end_block_data_statement)))
+    (end_block_data_statement))
+  (block_data
+    (block_data_statement
+      (name))
+    (end_block_data_statement))
+  (block_data
+    (block_data_statement
+      (name))
+    (end_block_data_statement
+      (name))))
+
+================================================================================
+Statement labels on construct end
+================================================================================
+
+program test
+contains
+    subroutine foo
+    10 end subroutine foo
+
+    integer function bar
+      bar = 20
+    20 end function bar
+
+30 end program test
+
+--------------------------------------------------------------------------------
+
+(translation_unit
+  (program
+    (program_statement
+      (name))
+    (internal_procedures
+      (contains_statement)
+      (subroutine
+        (subroutine_statement
+          (name))
+        (statement_label)
+        (end_subroutine_statement
+          (name)))
+      (function
+        (function_statement
+          (intrinsic_type)
+          (name))
+        (assignment_statement
+          (identifier)
+          (number_literal))
+        (statement_label)
+        (end_function_statement
+          (name))))
+    (statement_label)
+    (end_program_statement
+      (name))))
