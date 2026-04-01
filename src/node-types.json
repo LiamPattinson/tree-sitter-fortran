@@ -7833,6 +7833,11 @@
     "named": false
   },
   {
+    "type": "pfunit_directive",
+    "named": true,
+    "extra": true
+  },
+  {
     "type": "pinned",
     "named": false
   },

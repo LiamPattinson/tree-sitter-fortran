@@ -932,3 +932,22 @@ Baz */
   (multiline_preproc_comment)
   (preproc_ifdef
     (identifier)))
+
+
+================================================================================
+pFUnit directives
+================================================================================
+
+program test
+    @assertEqual(1, 1, tolerance=1e-6, message="1 should equal 1")
+end program test
+
+--------------------------------------------------------------------------------
+
+(translation_unit
+  (program
+    (program_statement
+      (name)
+    (pfunit_directive)
+    (end_program_statement
+      (name)))))

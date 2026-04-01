@@ -23143,6 +23143,22 @@
         ]
       }
     },
+    "pfunit_directive": {
+      "type": "TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "@"
+          },
+          {
+            "type": "PATTERN",
+            "value": ".*"
+          }
+        ]
+      }
+    },
     "_end_of_statement": {
       "type": "CHOICE",
       "members": [
@@ -23169,6 +23185,10 @@
     {
       "type": "SYMBOL",
       "name": "comment"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "pfunit_directive"
     },
     {
       "type": "SYMBOL",

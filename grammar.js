@@ -71,6 +71,7 @@ module.exports = grammar({
     // preprocessor statements
     /\s|\\\r?\n/,
     $.comment,
+    $.pfunit_directive,
     $.multiline_preproc_comment,
     '&',
   ],
@@ -2403,6 +2404,8 @@ module.exports = grammar({
     ),
 
     comment: $ => token(seq('!', /.*/)),
+    
+    pfunit_directive: $ => token(seq('@', /.*/)),
 
     _end_of_statement: $ => choice(';', $._external_end_of_statement),
 
