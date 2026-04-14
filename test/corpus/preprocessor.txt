@@ -947,7 +947,7 @@ end program test
 (translation_unit
   (program
     (program_statement
-      (name)
-    (pfunit_directive)
+      (name))
+    (custom_directive)
     (end_program_statement
-      (name)))))
+      (name))))

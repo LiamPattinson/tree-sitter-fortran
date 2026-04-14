@@ -2405,7 +2405,7 @@ module.exports = grammar({
 
     comment: $ => token(seq('!', /.*/)),
     
-    custom_directive: $ => token(seq('@', /.*/)),
+    custom_directive: $ => token(prec(-1, seq('@', /.*/))),
 
     _end_of_statement: $ => choice(';', $._external_end_of_statement),
 
