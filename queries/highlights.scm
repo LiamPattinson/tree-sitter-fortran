@@ -3,7 +3,7 @@
 (number_literal) @number
 (boolean_literal) @boolean
 (comment) @comment
-(pfunit_directive) @pfunit_directive
+(custom_directive) @custom_directive
 
 [
  (intrinsic_type)

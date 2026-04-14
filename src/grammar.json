@@ -23143,7 +23143,7 @@
         ]
       }
     },
-    "pfunit_directive": {
+    "custom_directive": {
       "type": "TOKEN",
       "content": {
         "type": "SEQ",
@@ -23188,7 +23188,7 @@
     },
     {
       "type": "SYMBOL",
-      "name": "pfunit_directive"
+      "name": "custom_directive"
     },
     {
       "type": "SYMBOL",

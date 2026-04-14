@@ -7384,6 +7384,11 @@
     "named": false
   },
   {
+    "type": "custom_directive",
+    "named": true,
+    "extra": true
+  },
+  {
     "type": "cycle",
     "named": false
   },
@@ -7774,11 +7779,11 @@
   },
   {
     "type": "none",
-    "named": false
+    "named": true
   },
   {
     "type": "none",
-    "named": true
+    "named": false
   },
   {
     "type": "nopass",
@@ -7831,11 +7836,6 @@
   {
     "type": "pause",
     "named": false
-  },
-  {
-    "type": "pfunit_directive",
-    "named": true,
-    "extra": true
   },
   {
     "type": "pinned",
