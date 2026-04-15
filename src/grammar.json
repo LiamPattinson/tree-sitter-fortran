@@ -23131,6 +23131,26 @@
         ]
       }
     },
+    "custom_directive": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": -1,
+        "content": {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "@"
+            },
+            {
+              "type": "PATTERN",
+              "value": ".*"
+            }
+          ]
+        }
+      }
+    },
     "_end_of_statement": {
       "type": "CHOICE",
       "members": [
@@ -23157,6 +23177,10 @@
     {
       "type": "SYMBOL",
       "name": "comment"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "custom_directive"
     },
     {
       "type": "SYMBOL",
